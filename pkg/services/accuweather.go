@@ -44,7 +44,7 @@ func (a Accuweather) GetLocationData(city string) *api.HttpResponse {
 	}
 
 	response := a.doRequest()
-	if response.Error != nil {
+	if response.HasError() {
 		return api.NewHttpResponse(nil, response.HttpStatus, response.Error)
 	}
 
@@ -64,7 +64,7 @@ func (a Accuweather) GetCurrentCondition(locationKey string) *api.HttpResponse {
 	}
 
 	response := a.doRequest()
-	if response.Error != nil {
+	if response.HasError() {
 		return api.NewHttpResponse(nil, response.HttpStatus, response.Error)
 	}
 
