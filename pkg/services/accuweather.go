@@ -15,6 +15,7 @@ var errorsDetails = map[int]string{
 	403: "Unauthorized. You do not have permission to access this endpoint",
 	404: "Server has not found a route matching the given URI",
 	500: "Server encountered an unexpected condition which prevented it from fulfilling the request",
+	503: "Service is unavaiable",
 }
 
 type Accuweather struct {
@@ -25,7 +26,7 @@ type Accuweather struct {
 func NewAccuweather() *Accuweather {
 	return &Accuweather{
 		url: "http://dataservice.accuweather.com/locations/v1/cities/search",
-		key: "DBo3uAAixdGNk8ph5Lzq1jgj75SDLxDV",
+		key: "j7wam502gD85s48G2POGGyzVb6sIGXWg",
 	}
 }
 

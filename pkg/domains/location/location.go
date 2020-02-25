@@ -14,6 +14,7 @@ type Service interface {
 type Location struct {
 	City    []City
 	Weather []weather.Weather
+	Error   error
 	svc     Service
 }
 
@@ -21,18 +22,19 @@ func NewLocation(svc Service) *Location {
 	return &Location{svc: svc}
 }
 
-func (l *Location) GetWeatherConditionsByCity(city string) error {
+func (l *Location) GetWeatherConditionsByCity(city string) {
 	err := l.getLocationData(city)
 	if err != nil {
-		return err
+		l.Error = err
+		return
 	}
 
 	err = l.getCurrentCondition()
 	if err != nil {
-		return err
+		return
 	}
 
-	return nil
+	return
 }
 
 func (l *Location) getLocationData(city string) error {

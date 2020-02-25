@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WeatherApp</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        main {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="container text-center">
+        <h3>Search The Weather By City</h3>
+        <div class="col-sm-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
+            <form action="http://localhost:8080/conditions" method="POST">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Ex.: Florianópolis" name="city">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="submit">Pesquisar</button>
+                    </div>
+                </div>
+            </form>
+
+            <hr/>
+
+            {{if .Error }}
+
+                <div class="alert alert-danger" role="alert">
+                    <strong>Erro!</strong> {{ .Error }}
+                </div>
+
+            {{ else }}
+                <table class="table table-bordered">
+                    <thead>
+                    {{range .City}}
+                        <tr>
+                            <th colspan="3" scope="col">{{ .Name }}</th>
+                        </tr>
+                    {{end}}
+                    </thead>
+                    <tbody>
+                        {{range .Weather}}
+                        <tr>
+                            <td>
+                                <b>{{ .Text }} <br> {{ .Temperature.Metric.Value }} °C</br>
+                            </td>
+                            <td colspan="2">
+                                <img src="https://developer.accuweather.com/sites/default/files/{{.Icon}}-s.png" alt="{{ .Text }}">
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{range .City}}
+                        <tr>
+                            <td>
+                                <b>Region:</b>{{ .Region.Name }}
+                            </td>
+                            <td>
+                                <b>País:</b> {{ .Country.Name }}
+                            </td>
+                            <td>
+                                <b>Estado:</b> {{ .State.Name }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <b>Latitude:</b> {{ .GeoPosition.Latitude }}
+                                &nbsp;
+                                <b>Longitude:</b> {{ .GeoPosition.Longitude }}
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            {{ end }}
+        </div>
+    </div>
+</main>
+</body>
+</html>
