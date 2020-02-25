@@ -1,12 +1,21 @@
 package services
 
 import (
+	"errors"
 	"fmt"
+	"github.com/WalterPaes/WeatherApp/pkg/lib/api"
 	"io/ioutil"
 	"net/http"
 )
 
 var language = "pt-br"
+var errorsDetails = map[int]string{
+	400: "Request had bad syntax or the parameters supplied were invalid",
+	401: "Unauthorized. API authorization failed",
+	403: "Unauthorized. You do not have permission to access this endpoint",
+	404: "Server has not found a route matching the given URI",
+	500: "Server encountered an unexpected condition which prevented it from fulfilling the request",
+}
 
 type Accuweather struct {
 	url string
@@ -20,46 +29,46 @@ func NewAccuweather() *Accuweather {
 	}
 }
 
-func (a Accuweather) GetLocationData(city string) ([]byte, error) {
+func (a Accuweather) GetLocationData(city string) *api.HttpResponse {
 	url := "http://dataservice.accuweather.com/locations/v1/cities/search"
 	params := map[string]string{
-		"apikey": a.key,
-		"q": city,
+		"apikey":   a.key,
+		"q":        city,
 		"language": language,
-		"details": "true",
+		"details":  "true",
 	}
 
 	err := a.setUrl(url, params)
 	if err != nil {
-		return nil, err
+		return api.NewHttpResponse(nil, http.StatusInternalServerError, err)
 	}
 
-	data, err := a.doRequest()
-	if err != nil {
-		return nil, err
+	response := a.doRequest()
+	if response.Error != nil {
+		return api.NewHttpResponse(nil, response.HttpStatus, response.Error)
 	}
 
-	return data, nil
+	return api.NewHttpResponse(response.Body, response.HttpStatus, response.Error)
 }
 
-func (a Accuweather) GetCurrentCondition(locationKey string) ([]byte, error) {
+func (a Accuweather) GetCurrentCondition(locationKey string) *api.HttpResponse {
 	url := fmt.Sprintf("http://dataservice.accuweather.com/currentconditions/v1/%s", locationKey)
 	params := map[string]string{
-		"apikey": a.key,
+		"apikey":   a.key,
 		"language": language,
 	}
 
 	err := a.setUrl(url, params)
 	if err != nil {
-		return nil, err
+		return api.NewHttpResponse(nil, http.StatusInternalServerError, err)
 	}
 
-	data, err := a.doRequest()
-	if err != nil {
-		return nil, err
+	response := a.doRequest()
+	if response.Error != nil {
+		return api.NewHttpResponse(nil, response.HttpStatus, response.Error)
 	}
 
-	return data, nil
+	return api.NewHttpResponse(response.Body, response.HttpStatus, response.Error)
 }
 
 func (a *Accuweather) setUrl(url string, params map[string]string) error {
@@ -83,18 +92,22 @@ func (a *Accuweather) setUrl(url string, params map[string]string) error {
 	return nil
 }
 
-func (a Accuweather) doRequest() ([]byte, error) {
+func (a Accuweather) doRequest() *api.HttpResponse {
 	resp, err := http.Get(a.url)
 	if err != nil {
-		return nil, err
+		return api.NewHttpResponse(nil, http.StatusInternalServerError, err)
 	}
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return api.NewHttpResponse(nil, resp.StatusCode, errors.New(errorsDetails[resp.StatusCode]))
 	}
 
-	return body, nil
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return api.NewHttpResponse(nil, http.StatusInternalServerError, err)
+	}
+
+	return api.NewHttpResponse(body, resp.StatusCode, err)
 }
