@@ -24,7 +24,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, l)
 }
 
-func renderTemplate(w http.ResponseWriter, data *location.Location) {
+func renderTemplate(w http.ResponseWriter, data *location.Data) {
 	tpl := template.Must(template.ParseFiles("pkg/ui/layout.html"))
 	err := tpl.Execute(w, data)
 	if err != nil {
