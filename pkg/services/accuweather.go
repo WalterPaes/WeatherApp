@@ -25,7 +25,6 @@ type Accuweather struct {
 
 func NewAccuweather() *Accuweather {
 	return &Accuweather{
-		url: "http://dataservice.accuweather.com/locations/v1/cities/search",
 		key: "uYEYLGzp5nEAa0ra1947kRwQdhyEJaNL",
 	}
 }
